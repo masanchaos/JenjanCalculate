@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>價格概算器</title>
+<title>JENJAN服務費概算器</title>
 <style>
   body {
     font-family: 'Roboto', sans-serif;
     background-color: #f5f5f5;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
   }
 
   h1 {
@@ -18,8 +19,9 @@
     margin-top: 20px;
   }
 
-  #calculatorForm {
+  #calculatorFormContainer {
     max-width: 600px;
+    width: 90%;
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
@@ -68,139 +70,219 @@
   }
 
   fieldset {
-    border: 2px solid #2196F3; /* 修改邊框顏色和寬度 */
-    border-radius: 8px; /* 添加邊框圓角 */
+    border: 2px solid #2196F3;
+    border-radius: 8px;
     margin: 0;
-    padding: 20px; /* 添加內邊距 */
+    padding: 20px;
     margin-bottom: 20px;
-    background-color: #f9f9f9; /* 設置背景色 */
+    background-color: #f9f9f9;
   }
 
   legend {
-    font-weight: bold; /* 添加粗體字體 */
-    color: #333; /* 設置文字顏色 */
+    font-weight: bold;
+    color: #333;
   }
 
+  /* 移动设备样式 */
+  @media only screen and (max-width: 600px) {
+    input[type="number"],
+    select {
+      width: calc(60% - 10px);
+    }
+    label,
+    button,
+    select {
+      width: 100%;
+    }
+    span {
+      display: inline-block;
+      width: calc(40% - 10px);
+    }
+    #mobileStatus {
+      display: block;
+    }
+    #webButton {
+      display: none;
+    }
+  }
+
+  /* 网页样式 */
+  @media only screen and (min-width: 601px) {
+    #mobileStatus {
+      display: none;
+    }
+    #webButton {
+      display: block;
+    }
+  }
+  .centered-text {
+    text-align: center; /* 水平居中 */
+    font-size: 0.5em; /* 字体大小缩小一半 */
+  }
 </style>
 </head>
 <body>
-<h1>JENJAN價格概算器</h1>
+<h1>JENJAN服務費概算器</h1>
 
-<form id="calculatorForm">
-  <label for="product">方案：</label>
-  <select id="product">
-    <option value="0">選擇方案</option>
-    <option value="10">標準型</option>
-    <option value="20">90天型</option>
-  </select>
-  <br><br>
-
-  <label for="skuNumber">SKU總數：</label>
-  <input type="number" id="skuNumber" min="0"><span>種</span>
-  <br><br>
-
-  <fieldset>
-    <legend>入倉箱子大小</legend>
-    <label for="60boxNumber">60cm以下：</label>
-    <input type="number" id="60boxNumber" min="0"><span>箱</span>
+<div id="calculatorFormContainer">
+  <form id="calculatorForm">
+    <label for="plan">方案：</label>
+    <select id="plan">
+      <option value="0">選擇方案</option>
+      <option value="10">標準型</option>
+      <option value="20">90天型</option>
+    </select>
     <br><br>
-    <label for="6190boxNumber">61-90cm：</label>
-    <input type="number" id="6190boxNumber" min="0"><span>箱</span>
+
+    <label for="skuNumber">SKU總數：</label>
+    <input type="number" id="skuNumber" min="0"><span>種</span>
     <br><br>
-    <label for="91120boxNumber">91-120cm：</label>
-    <input type="number" id="91120boxNumber" min="0"><span>箱</span>
+
+    <fieldset>
+      <legend>入倉箱子大小</legend>
+      <label for="60boxNumber">60cm以下：</label>
+      <input type="number" id="60boxNumber" min="0"><span>箱</span>
+      <br><br>
+      <label for="6190boxNumber">61-90cm：</label>
+      <input type="number" id="6190boxNumber" min="0"><span>箱</span>
+      <br><br>
+      <label for="91120boxNumber">91-120cm：</label>
+      <input type="number" id="91120boxNumber" min="0"><span>箱</span>
+      <br><br>
+      <label for="121150boxNumber">121-150cm：</label>
+      <input type="number" id="121150boxNumber" min="0"><span>箱</span>
+      <br><br>
+      <label for="151boxNumber">151cm以上：</label>
+      <input type="number" id="151boxNumber" min="0"><span>箱</span>
+    </fieldset>
+
+    <label for="monthlyItems">每月入倉商品總數：</label>
+    <input type="number" id="monthlyItems" min="0"><span>pcs</span>
     <br><br>
-    <label for="121150boxNumber">121-150cm：</label>
-    <input type="number" id="121150boxNumber" min="0"><span>箱</span>
+
+    <label for="averageItems">每張訂單平均商品數：</label>
+    <input type="number" id="averageItems" min="0"><span>pcs</span>
     <br><br>
-    <label for="151boxNumber">151cm以上：</label>
-    <input type="number" id="151boxNumber" min="0"><span>箱</span>
-  </fieldset>
 
-  <label for="monthlyItems">每月入倉總商品數：</label>
-  <input type="number" id="monthlyItems" min="0"><span>pcs</span>
-  <br><br>
+    <label for="monthlyOrders">預估每月訂單量：</label>
+    <input type="number" id="monthlyOrders" min="0"><span>單</span>
+    <br><br>
 
-  <label for="averageItems">每張訂單平均商品數：</label>
-  <input type="number" id="averageItems" min="0"><span>pcs</span>
-  <br><br>
+    <button type="button" id="calculateButton" onclick="calculateFees()">計算</button>
+    <br><br>
 
-  <label for="monthlyOrders">預估平均每月訂單量：</label>
-  <input type="number" id="monthlyOrders" min="0"><span>單</span>
-  <br><br>
+    <label for="warehouseFee">倉儲費：</label>
+    <span id="warehouseFee">$0</span>
+    <br><br>
 
-  <button type="button" id="calculateButton">計算</button>
-  <br><br>
+    <label for="entryFee">入倉費：</label>
+    <span id="entryFee">$0</span>
+    <br><br>
 
-  <label for="warehouseFee">倉儲費：</label>
-  <span id="warehouseFee">$0</span>
-  <br><br>
+    <label for="shelfFee">揀貨層架儲格費：</label>
+    <span id="shelfFee">$0</span>
+    <br><br>
 
-  <label for="entryFee">入倉費：</label>
-  <span id="entryFee">$0</span>
-  <br><br>
+    <label for="exportFee">出貨服務費：</label>
+    <span id="exportFee">$0</span>
+    <br>
 
-  <label for="pickingFee">揀貨層架儲格費：</label>
-  <span id="pickingFee">$0</span>
-  <br><br>
+    <hr style="border-top: 1px solid #ccc;">
+    <br>
+    <label for="jenjanFee">JENJAN總服務費：</label>
+    <span id="jenjanFee">$0</span>
+    <br><br>
 
-  <label for="shippingFee">出貨服務費：</label>
-  <span id="shippingFee">$0</span>
-  <br>
-
-  <hr style="border-top: 1px solid #ccc;">
-  <br>
-  <label for="jenjanFee">JENJAN總服務費：</label>
-  <span id="jenjanFee">$0</span>
-  <br><br>
-</form>
+    <div class="centered-text">
+        <p>Powered by JeffMa</p>
+    </div>
+  </form>
+</div>
 
 <script>
-  const calculateButton = document.getElementById('calculateButton');
-  calculateButton.addEventListener('click', calculateFees);
-
   function calculateFees() {
-    const product = document.getElementById('product').value;
-    const box60 = parseFloat(document.getElementById('60boxNumber').value);
-    const box6190 = parseFloat(document.getElementById('6190boxNumber').value);
-    const box91120 = parseFloat(document.getElementById('91120boxNumber').value);
-    const box121150 = parseFloat(document.getElementById('121150boxNumber').value);
-    const box151 = parseFloat(document.getElementById('151boxNumber').value);
-    const monthlyItems = parseInt(document.getElementById('monthlyItems').value);
-    const averageItems = parseInt(document.getElementById('averageItems').value);
-    const monthlyOrders = parseInt(document.getElementById('monthlyOrders').value);
-    const skuNumber = parseInt(document.getElementById('skuNumber').value);
+    let plan = document.getElementById('plan').value;
+    let box60 = parseInt(document.getElementById('60boxNumber').value);
+    let box6190 = parseInt(document.getElementById('6190boxNumber').value);
+    let box91120 = parseInt(document.getElementById('91120boxNumber').value);
+    let box121150 = parseInt(document.getElementById('121150boxNumber').value);
+    let box151 = parseInt(document.getElementById('151boxNumber').value);
+    let skuNumber = parseInt(document.getElementById('skuNumber').value);
+    let monthlyItems = parseInt(document.getElementById('monthlyItems').value);
+    let averageItems = parseInt(document.getElementById('averageItems').value);
+    let monthlyOrders = parseInt(document.getElementById('monthlyOrders').value);
+
+    if(isNaN(skuNumber)){
+      skuNumber = 0;
+    }
+
+    if(isNaN(box60)){
+      box60 = 0;
+    }
+
+    if(isNaN(box6190)){
+      box6190 = 0;
+    }
+
+    if(isNaN(box91120)){
+      box91120 = 0;
+    }
+
+    if(isNaN(box121150)){
+      box121150 = 0;
+    }
+
+    if(isNaN(box151)){
+      box151 = 0;
+    }
+
+
+    if(isNaN(monthlyItems)){
+      monthlyItems = 0;
+    }
+
+    if(isNaN(averageItems)){
+      averageItems = 0;
+    }
+
+    if(isNaN(monthlyOrders)){
+      monthlyOrders = 0;
+    }
+
 
     let warehouseFee = 0;
     let entryFee = 0;
-    let pickingFee = 0;
-    let shippingFee = 0;
+    let shelfFee = 0;
+    let exportFee = 0;
     let jenjanFee = 0;
 
-    if (product === '0') {
+    if (plan === '0') {
       alert('請選擇方案');
       return;
     }
 
-    if (product === '10') { // 標準型方案的計算
-      warehouseFee = 30 * (0.6 * box60 + 0.8 * box6190 + 1.4 * box91120 + 2.9 * box121150 + 5 * box151) ;
-      shippingFee = monthlyOrders * 22 + 3 * (averageItems - 1) ;
-      pickingFee = skuNumber * 80;
-    } else if (product === '20') { // 90天型方案的計算
+    if (plan === '10') {
+      warehouseFee = 30 * (0.6 * box60 + 0.8 * box6190 + 1.4 * box91120 + 2.9 * box121150 + 5 * box151);
+      exportFee = monthlyOrders * 22 + 3 * (averageItems - 1);
+      if(exportFee < 0){
+        exportFee = 0;
+      }
+      shelfFee = skuNumber * 80;
+
+    } else if (plan === '20') {
       warehouseFee = 0;
-      pickingFee = 0;
-      shippingFee = monthlyOrders * 68 ;
+      shelfFee = 0;
+      exportFee = monthlyOrders * ( 68 + 5 );
     }
 
     entryFee = monthlyItems * 2;
-    jenjanFee = warehouseFee + shippingFee + pickingFee + entryFee;
+    jenjanFee = warehouseFee + exportFee + shelfFee + entryFee;
 
-    // 更新表單上的價格
-    document.getElementById('warehouseFee').textContent = '$' + warehouseFee.toFixed(2);
-    document.getElementById('entryFee').textContent = '$' + entryFee.toFixed(2);
-    document.getElementById('pickingFee').textContent = '$' + pickingFee.toFixed(2);
-    document.getElementById('shippingFee').textContent = '$' + shippingFee.toFixed(2);
-    document.getElementById('jenjanFee').textContent = '$' + jenjanFee.toFixed(2);
+    document.getElementById('warehouseFee').textContent = '$' + warehouseFee.toFixed(0);
+    document.getElementById('entryFee').textContent = '$' + entryFee.toFixed(0);
+    document.getElementById('shelfFee').textContent = '$' + shelfFee.toFixed(0);
+    document.getElementById('exportFee').textContent = '$' + exportFee.toFixed(0);
+    document.getElementById('jenjanFee').textContent = '$' + jenjanFee.toFixed(0);
   }
 </script>
 </body>
