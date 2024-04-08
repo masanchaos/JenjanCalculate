@@ -266,7 +266,7 @@
 
     if (plan === '10') {
       warehouseFee = 30 * (0.6 * box60 + 0.8 * box6190 + 1.4 * box91120 + 2.9 * box121150 + 5 * box151);
-      exportFee = monthlyOrders * 22 + 3 * (averageItems - 1);
+      exportFee = monthlyOrders * (22 + 3 * (averageItems - 1)) + monthlyOrders * (12 + 5); //A10箱子加氣泡布
       if(exportFee < 0){
         exportFee = 0;
       }
@@ -275,7 +275,7 @@
     } else if (plan === '20') {
       warehouseFee = 0;
       shelfFee = 0;
-      exportFee = monthlyOrders * ( 68 + 5 );
+      exportFee = monthlyOrders * ( 68 + 5 ); //5元為氣泡布
     }
 
     entryFee = monthlyItems * 2;
